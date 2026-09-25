@@ -1,5 +1,5 @@
 import { describe, expect, test } from "@jest/globals";
-import { toText } from "./ReactView";
+import { getBottomOverlap, partitionTasks, toText } from "./ReactView";
 import { PostFormat } from "../settings";
 import { moment } from "obsidian";
 
@@ -13,3 +13,32 @@ describe("toText", () => {
   });
 });
 
+describe("getBottomOverlap", () => {
+  test("returns the portion of the mobile navbar covering the view", () => {
+    expect(getBottomOverlap({ bottom: 800 }, { top: 720, bottom: 840 })).toBe(
+      80
+    );
+  });
+
+  test("returns zero when the mobile navbar is below the view", () => {
+    expect(getBottomOverlap({ bottom: 700 }, { top: 720, bottom: 840 })).toBe(
+      0
+    );
+  });
+});
+
+describe("partitionTasks", () => {
+  test("returns empty groups when there are no tasks", () => {
+    expect(partitionTasks([])).toEqual({ incomplete: [], completed: [] });
+  });
+
+  test("separates incomplete and completed tasks", () => {
+    const incomplete = { name: "open", mark: " ", offset: 1 };
+    const completed = { name: "done", mark: "x", offset: 2 };
+
+    expect(partitionTasks([incomplete, completed])).toEqual({
+      incomplete: [incomplete],
+      completed: [completed],
+    });
+  });
+});
