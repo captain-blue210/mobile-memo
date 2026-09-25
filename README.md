@@ -1,220 +1,265 @@
-# Mobile First Daily Interface (MFDI)
+# Mobile Memo
 
-[![release](https://img.shields.io/github/release/tadashi-aikawa/mobile-first-daily-interface.svg)](https://github.com/tadashi-aikawa/mobile-first-daily-interface/releases/latest)
-![downloads](https://img.shields.io/github/downloads/tadashi-aikawa/mobile-first-daily-interface/total)
+[![Release workflow](https://github.com/captain-blue210/mobile-memo/actions/workflows/release.yaml/badge.svg)](https://github.com/captain-blue210/mobile-memo/actions/workflows/release.yaml)
 
-![image](https://raw.githubusercontent.com/tadashi-aikawa/mobile-first-daily-interface/master/image.png)
+![Mobile Memo](https://raw.githubusercontent.com/captain-blue210/mobile-memo/main/image.png)
 
-[Obsidian]にてモバイルに最適なインターフェースでデイリーノートを扱うプラグインです。
+Mobile Memo は、Obsidian のデイリーノートをモバイル向けのタイムライン UI で扱うプラグインです。メモとタスクをすばやく追加し、日付ごとの内容を軽量に確認できます。
 
-- SNS やチャットツールのような UI
-- 記録先はデイリーノート
+- 選択中の 1 日分だけを読み込むタイムライン
+- Markdown 対応のメモ投稿
+- Web ページ、画像、X（旧 Twitter）URL のプレビュー
+- タスクの追加と完了・未完了の切り替え
+- 日付移動、今日へ戻る操作、デイリーノートを直接開く操作
+- PC とモバイルで個別に指定できる表示位置
+- iOS を含むモバイルキーボードを考慮した入力 UI
 
-> **Note**
-> 本プラグインは[Obsidian Memos] (現: [Thino]) の影響を強く受けています。そのため、[コミュニティプラグイン]には登録しません。また、英語の README を記載する予定もありません。
+内部のプラグイン ID は `obsidian-mobile-memo`、必要な Obsidian の最小バージョンは `1.2.8` です。デスクトップ専用ではありません。
 
-## 対応 OS
+## インストール
 
-[Obsidian]がサポートする全てのプラットフォーム/OS に対応しているつもりです。
+このプラグインは Obsidian のコミュニティプラグイン一覧には登録されていません。
 
-- Windows
-- macOS (動作未確認)
-- Linux (動作未確認)
-- Android
-- iOS (動作未確認)
-- iPadOS (動作未確認)
+### BRAT
 
-画面はスマートフォンに最適化されていますが、PC やタブレットでも利用できます。
+[BRAT]で次のリポジトリを追加し、Obsidian の「コミュニティプラグイン」から Mobile Memo を有効にします。
 
-## ⏬ インストール
+```text
+captain-blue210/mobile-memo
+```
 
-[BRAT]を使って`tadashi-aikawa/mobile-first-daily-interface`でインストールします。
+GitHub Releases に配布ファイルがまだない場合は、次の手動インストールを利用してください。
 
-## 起動方法
+### 手動インストール
 
-[リボン]の『Mobile Memo』という鉛筆マークをクリックしてください。
+1. [Bun]をインストールします。
+2. このリポジトリをクローンし、依存関係のインストールとビルドを実行します。
 
-クイック投稿（モーダル）
+   ```bash
+   git clone https://github.com/captain-blue210/mobile-memo.git
+   cd mobile-memo
+   bun install
+   bun run build
+   ```
 
-- [リボン]の『+』アイコン（ツールチップ: "Mobile Memo（モーダル投稿）"）をクリック
-- もしくは、コマンドパレットで「Mobile Memo: モーダルで投稿」を実行
+3. 次の 3 ファイルを Vault 内の `.obsidian/plugins/obsidian-mobile-memo/` に配置します。
 
-デフォルトでは左サイドリーフに開かれます。
+   - `main.js`
+   - `manifest.json`
+   - `styles.css`
+
+4. Obsidian を再読み込みし、「設定」→「コミュニティプラグイン」から Mobile Memo を有効にします。
+
+## 使い方
+
+### 開く
+
+次のどちらかで Mobile Memo を開きます。
+
+- リボンの鉛筆アイコン「Mobile Memo」をクリックする
+- コマンドパレットで `Mobile Memo: Mobile Memoを開く` を実行する
+
+表示先は PC とモバイルで個別に設定できます。初期値はいずれも左サイドリーフです。
+
+### 日付を選ぶ
+
+画面上部で対象日を切り替えます。
+
+- 左右の矢印: 前日・翌日へ移動
+- 「今日」: 今日へ戻る
+- 日付入力: 任意の日を選択
+- 右上の外部リンクアイコン: 対象日のデイリーノートを Obsidian で開く
+
+対象日のデイリーノートが存在しない場合は、最初の投稿時または外部リンクアイコンを押したときに作成されます。
+
+### メモを投稿する
+
+1. 入力欄の左下をメモモード（吹き出しアイコン）にします。
+2. Markdown で内容を入力します。
+3. 「送信」を押します。PC では `Ctrl+Enter` でも送信できます。
+
+投稿は新しい順に表示されます。投稿カードでは次の操作ができます。
+
+- 投稿日時をクリックして、元のデイリーノート内の該当位置を開く
+- `copy` をクリックして投稿本文をクリップボードへコピーする
+- 本文中の Web ページ、画像、X（旧 Twitter）の URL をプレビューする
+
+投稿の編集や削除は、元のデイリーノートを直接編集してください。ファイル変更は Mobile Memo の表示へ反映されます。
+
+### タスクを扱う
+
+1. 入力欄の左下をタスクモード（チェックアイコン）にします。
+2. タスク名を入力して「タスク追加」を押します。
+3. 一覧のチェックボックスで完了・未完了を切り替えます。
+
+タスクはデイリーノートへ `- [ ] タスク名` の形式で追加されます。未完了と完了済みは分けて表示されます。
 
 ## 設定
 
+設定は Obsidian の「設定」→「Mobile Memo」から変更します。
+
 ### 投稿形式
 
-`default: コードブロック`
+初期値: `コードブロック`
 
-MFDI の投稿がエディタ上でどのような形式になるかを指定します。
+メモの保存形式と、タイムラインで読み込む形式を選びます。
 
-- コードブロック
-- 見出し 1
-- 見出し 2
-- 見出し 3
-- 見出し 4
-- 見出し 5
-- 見出し 6
-- リスト
+| 設定値               | 保存形式                                     |
+| -------------------- | -------------------------------------------- |
+| コードブロック       | 日時をメタ情報に持つ `fw` コードブロック     |
+| `見出し1`〜`見出し6` | 日時を見出し、投稿本文を見出し本文として保存 |
+| リスト               | `- 日時 本文` の 1 行リスト                  |
 
-### 表示リーフ（PC/モバイル）
+投稿形式を変更すると、選択した形式に一致する投稿が表示対象になります。リスト形式の投稿をタイムラインへ読み込むには「追記先の見出し」も設定してください。
 
-`default: left`
+### デイリーノートのディレクトリ
 
-PC とモバイルで MFDI View を表示するリーフをそれぞれ指定できます。
+初期値: 空
 
-- PC 向け: 表示リーフ（PC）
-- モバイル向け: 表示リーフ（モバイル）
+Vault 相対の保存先フォルダを指定します。
 
-| 設定値  | 意味                               |
-| ------- | ---------------------------------- |
-| left    | 左サイドリーフに表示します         |
-| right   | 右サイドリーフに表示します         |
-| current | **現在選択中のリーフ**に表示します |
+- 空の場合: Obsidian の Daily Notes 設定にあるフォルダ、ファイル名形式、テンプレートを使用します。
+- 指定した場合: Daily Notes のファイル名形式を使い、指定フォルダへ作成します。必要な親フォルダも自動作成します。
+
+例:
+
+```text
+Journal/Daily
+```
+
+ディレクトリを指定した場合、新しいデイリーノートは空ファイルとして作成され、Daily Notes のテンプレートは適用されません。
+
+### 追記先の見出し
+
+初期値: 空
+
+投稿を追加するセクションを、見出し記号を含めて指定します。
+
+```text
+## つぶやき
+```
+
+- 空の場合はファイル末尾へ追記します。
+- 指定した見出しがない場合は、ファイル末尾に見出しを作成してから投稿します。
+- 見出しがある場合は、同レベル以上の次の見出しの直前までを対象セクションとします。
+
+### 追記区切り
+
+初期値: 空
+
+「追記先の見出し」から、この文字列が現れる位置までを投稿先として扱います。区切りが対象セクション内に見つからない場合は、セクション末尾へ追記します。
+
+### 投稿日時フォーマット
+
+初期値: `YYYY-MM-DD HH:mm`
+
+投稿に付与する日時を Moment.js 形式で指定します。既存投稿の読み込みにも同じ形式を使うため、変更後は以前の形式で保存した投稿が表示されなくなる場合があります。
+
+### 投稿見出しを自動で段下げ
+
+初期値: オン
+
+見出し形式で投稿し、「追記先の見出し」を設定している場合、投稿見出しが追記先より下位になるよう自動調整します。たとえば追記先が `##` で、投稿形式が `見出し1` の場合、実際の投稿は `###` になります。
+
+オフにすると、選択した投稿形式の見出しレベルをそのまま使用します。
+
+### 表示リーフ（PC）／表示リーフ（モバイル）
+
+初期値: `left`
+
+PC とモバイルで Mobile Memo を開く場所を個別に指定します。
+
+| 設定値    | 表示先                 |
+| --------- | ---------------------- |
+| `left`    | 左サイドリーフ         |
+| `right`   | 右サイドリーフ         |
+| `current` | 現在アクティブなリーフ |
+
+すでに Mobile Memo が開いている場合は既存のビューを再利用します。`current` を選んだ場合は、必要に応じて現在のリーフへ移動します。
 
 ### Obsidian 起動時に自動起動・アクティブにする
 
-`default: false`
+初期値: オフ
 
-有効にすると、Obsidian 起動時に MFDI が立ち上がります。
+Obsidian のレイアウト準備後に Mobile Memo を開き、アクティブにします。既存のビューがあれば再利用し、なければプラットフォーム別の表示リーフ設定に従って作成します。
 
-- 1 つ以上の MFDI View が存在する場合
-  - 最初の 1 つをアクティブにします (**[表示リーフ]の設定は考慮しません**)
-- MFDI View が存在しない場合
-  - [表示リーフ]の設定に従い、View を新規作成してアクティブにします
+### モバイル起動時に入力フォームを自動表示
 
-### モバイル起動時にクイックメモを自動表示
+初期値: オフ
 
-`default: false`
+モバイルで Obsidian を起動したとき、またはバックグラウンドから復帰したときに Mobile Memo を開き、通常の入力フォームへフォーカスします。モーダルは使用しません。
 
-モバイル環境で Obsidian を起動したときに、クイックメモのモーダルを自動で開きます。
+## 現在の仕様と注意点
 
-また、アプリを一度閉じる（バックグラウンドへ移動）→再度開く場合にも自動表示します。
+- 一度に読み込むのは、画面で選択している 1 日分のデイリーノートだけです。
+- 投稿形式や日時フォーマットと一致しない既存コンテンツは、投稿一覧には表示されません。
+- タスクモードでは、対象のデイリーノート内にあるすべての Markdown タスクを表示します。
+- URL プレビューの取得にはネットワーク接続が必要です。対象サイトの応答形式や制限によってはプレビューできません。
+- 表示対象のデイリーノートを削除すると、画面上の投稿とタスクもクリアされます。
 
-### デイリーノート
+## 開発
 
-#### デイリーノートのディレクトリ
+### 必要環境
 
-`default: ''`（空）
+- [Bun]
+- Node.js 互換の開発環境
+- 開発時の動作確認に使用する Obsidian Vault
 
-Vault 相対のフォルダを指定します。空の場合は Obsidian の「Daily Notes」設定（フォルダ/フォーマット）に従います。
-
-- 例: `Journal/Daily`
-- 空でない場合は、そのフォルダ配下に `YYYY-MM-DD.md`（Daily Notes のフォーマットに準拠）を作成・利用します。
-- 注意: ディレクトリを上書きしている場合、現時点では Daily Notes のテンプレートは適用されず、空ファイルから作成します。
-
-#### 追記先の見出し
-
-`default: ''`（空）
-
-追記先を“# …”のように指定します。該当見出しが存在しない場合は自動で見出しを作成して、そのセクション末尾に追記します。空の場合はファイル末尾に追記します。
-
-- 例: `## つぶやき`
-- 対象見出しの「同レベル以上の次見出し」直前、またはファイル末尾に追記します。
-
-#### 追記区切り
-
-`default: ''`（空）
-
-指定された見出しの下からこの区切り文字列の上までが追記先になります。
-
-#### 投稿日時フォーマット
-
-`default: YYYY-MM-DD HH:mm`
-
-投稿時に付与する日時のフォーマットを指定します。
-
-#### 投稿見出しを自動で段下げ
-
-`default: true`
-
-「投稿形式」が見出しの場合、追記先見出しより 1 段下のレベルに自動調整します（例: 追記先が`##`なら投稿は`###`）。
-
-- OFF にすると、設定した見出しレベルのまま投稿します。
-
-## 対応機能/ロードマップ
-
-- [x] メッセージの投稿
-  - [x] Markdown 形式に対応
-  - [x] サイトや画像の URL はプレビュー展開
-- [x] タスクの追加・完了/未完了の切り替え
-- [x] デイリーノートの自動生成
-- [x] カレンダー UI
-- [x] サイドリーフ表示
-- [x] 自動起動
-- [x] Bluesky 投稿機能
-- [x] 見出しでの投稿
-- [x] デイリーノートのディレクトリ指定
-- [x] 指定見出し配下への追記
-
-## FAQ
-
-> **Warning**
-> FAQ の内容は[Thino]がリリースされる前、[Obsidian Memos]の時代のものです。[Thino]では解消している可能性があります。
-
-### なぜ MFDI を作ったのか?
-
-[Obsidian Memos]を使わず、自作した背景には動作速度の問題があります。
-
-デイリーノートが 1000 ファイル近くあるせいか、[Obsidian Memos]ではメモの表示や投稿時に 3 ～ 5 秒程度固まってしまい実用に支障がありました。また、[Obsidian Memos]はしばらく更新されていなそうだったため、自分で必要な機能のみを搭載したプラグインを開発した方が良いと判断しました。
-
-### [Obsidian Memos]との違いは?
-
-[Obsidian Memos]と一番異なるのは、**1 度に 1 日分のデイリーノートしか読み込まない**点です。そのため、表示速度が速く、メモリ使用量が小さくなり、性能の悪い端末や大きな Vault での利用に適しています。
-
-また、タスク管理などデイリーに関連する機能は積極的にサポートしていく予定です。
-
-### 投稿を編集/削除したい場合は?
-
-デイリーノートを直接編集してください。
-
-### [Obsidian 起動時に自動起動・アクティブにする]を有効にしても自動起動しない
-
-以下のケースに該当しないか確認してください。たとえば、カレントリーフへ自動起動したいのに、左サイドリーフにも MFDI の View が存在する場合はそれを削除する必要があります。
-
-> - 1 つ以上の MFDI View が存在する場合
->   - 最初の 1 つをアクティブにします (**[表示リーフ]の設定は考慮しません**)
-
-また、[表示リーフ]が左サイドリーフや右サイドリーフになっている場合は、サイドリーフ内で MFDI がアクティブになっているだけです。いきなりサイドリーフが Open されるわけではありません。
-
-## その他
-
-Mobile First Daily Interface に関するブログ記事もご覧ください。
-
-[📘Obsidian Memos みたいなプラグイン Mobile First Daily Interface を作ったワケ \- Minerva](https://minerva.mamansoft.net/%F0%9F%93%98Articles/%F0%9F%93%98Obsidian+Memos+%E3%81%BF%E3%81%9F%E3%81%84%E3%81%AA%E3%83%97%E3%83%A9%E3%82%B0%E3%82%A4%E3%83%B3+Mobile+First+Daily+Interface%E3%82%92%E4%BD%9C%E3%81%A3%E3%81%9F%E3%83%AF%E3%82%B1)
-
-## 開発者向け
-
-### Setup
+### セットアップ
 
 ```bash
+git clone https://github.com/captain-blue210/mobile-memo.git
+cd mobile-memo
+bun install
 git config core.hooksPath hooks
 ```
 
-#### ローカル開発用設定 (.env)
+### 開発用 Vault の設定
 
-`esbuild.config.mjs` の `VAULT_DIR` は環境変数から指定できます。
+プロジェクト直下に `.env` を作成し、Vault の絶対パスを指定します。
 
-1. プロジェクト直下に `.env` を作成
-   - もしくは、`.env.example` をコピーして `.env` を作成
-2. 以下のように Vault のパスを設定
-
-```
+```dotenv
 VAULT_DIR=/absolute/path/to/your/ObsidianVault
 ```
 
-`bun run dev` / `bun run build` は Bun が自動で `.env` を読み込みます。
+`bun run dev` はソースを監視してビルドし、`main.js`、`manifest.json`、`styles.css` を次の場所へコピーします。
+
+```text
+<VAULT_DIR>/.obsidian/plugins/obsidian-mobile-memo/
+```
+
+また、開発用の `.hotreload` ファイルも作成します。
+
+### コマンド
+
+| コマンド        | 内容                                   |
+| --------------- | -------------------------------------- |
+| `bun run dev`   | 監視ビルドと開発用 Vault へのコピー    |
+| `bun run build` | TypeScript の型チェックと本番バンドル  |
+| `bun run test`  | Jest テストの実行                      |
+| `bun run ci`    | 依存関係のインストール、ビルド、テスト |
+
+テストは Jest、`esbuild-jest`、jsdom を使用します。Obsidian API のテスト用モックは `src/__mocks__/obsidian.ts` にあります。
 
 ### リリース
 
-[Release Action](https://github.com/tadashi-aikawa/mobile-first-daily-interface/actions/workflows/release.yaml) を実行。
+`main` ブランチへの push または手動実行で[Release workflow]が起動します。リリース判定とバージョン更新には semantic-release を使用し、`main.js`、`styles.css`、`manifest.json` を GitHub Release へ添付します。
 
-[Obsidian]: https://obsidian.md/
+コミットメッセージは Conventional Commits 形式です。
+
+```text
+<type>(<scope>)?: <description>
+```
+
+利用できる type は `feat`、`fix`、`style`、`docs`、`refactor`、`test`、`ci`、`build`、`dev`、`chore` です。
+
+## プロジェクトの由来
+
+Mobile Memo は、[tadashi-aikawa/mobile-first-daily-interface]を起点として開発されています。また、タイムライン型のデイリーノート UI という発想は[Obsidian Memos]（現在の[Thino]）から強い影響を受けています。
+
 [BRAT]: https://github.com/TfTHacker/obsidian42-brat
+[Bun]: https://bun.sh/
 [Obsidian Memos]: https://github.com/Quorafind/Obsidian-Memos
+[Release workflow]: https://github.com/captain-blue210/mobile-memo/actions/workflows/release.yaml
 [Thino]: https://github.com/Quorafind/Obsidian-Thino
-[コミュニティプラグイン]: https://help.obsidian.md/Advanced+topics/Community+plugins
-[表示リーフ]: #表示リーフ
-[リボン]: https://minerva.mamansoft.net/Notes/%E3%83%AA%E3%83%9C%E3%83%B3%20(Obsidian)
-[Obsidian起動時に自動起動・アクティブにする]: #obsidian起動時に自動起動・アクティブにする
+[tadashi-aikawa/mobile-first-daily-interface]: https://github.com/tadashi-aikawa/mobile-first-daily-interface
