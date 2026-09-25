@@ -7,79 +7,79 @@ import {
   getMetaByHttpEquiv,
 } from "./meta-helper";
 
+const documentFrom = (html: string): Document =>
+  new JSDOM(html).window.document;
+
 describe("getFaviconUrl", () => {
-  test.each`
-    name           | url                                                                             | expected
-    ${"ESLint"}    | ${"https://eslint.org/docs/latest/rules"}                                       | ${"https://eslint.org/icon.svg"}
-    ${"GitHub"}    | ${"https://github.com/tadashi-aikawa/obsidian-another-quick-switcher"}          | ${"https://github.githubassets.com/favicons/favicon.svg"}
-    ${"voicy"}     | ${"https://voicy.jp/channel/1380/459280"}                                       | ${"https://voicy.jp/favicon.ico"}
-    ${"Zenn"}      | ${"https://zenn.dev/estra/books/obsidian-dot-zenn"}                             | ${"https://static.zenn.studio/images/logo-transparent.png"}
-    ${"Qiita"}     | ${"https://qiita.com/ugr0/items/514dcab4275aa74f3add"}                          | ${"https://cdn.qiita.com/assets/favicons/public/production-c620d3e403342b1022967ba5e3db1aaa.ico"}
-    ${"Cargo"}     | ${"https://doc.rust-lang.org/cargo/reference/publishing.html"}                  | ${"https://doc.rust-lang.org/cargo/favicon.png"}
-    ${"GIGAZINE"}  | ${"https://gigazine.net/news/20230322-windows-11-snipping-tool-vulnerability/"} | ${"https://gigazine.net/favicon.ico"}
-    ${"Gihyo"}     | ${"https://gihyo.jp/book/2023/978-4-297-13719-9"}                               | ${"https://gihyo.jp/GHfavicon.svg"}
-    ${"ｽﾀﾃﾞｨｻﾌﾟﾘ"} | ${"https://blog.studysapuri.jp/entry/2018/11/14/working-out-loud"}              | ${"https://blog.studysapuri.jp/icon/favicon"}
-  `(`getFaviconUrl: $name`, async ({ url, expected }) => {
-    const textResponse = await (await fetch(url)).text();
-    expect(getFaviconUrl(new JSDOM(textResponse).window.document, url)).toBe(
-      expected
-    );
+  test.each<{
+    name: string;
+    html: string;
+    url: string;
+    expected: string;
+  }>`
+    name                            | html                                                                                                              | url                              | expected
+    ${"absolute SVG URL"}           | ${'<link rel="icon" href="https://cdn.example.com/icon.svg">'}                                                    | ${"https://example.com/posts/1"} | ${"https://cdn.example.com/icon.svg"}
+    ${"absolute PNG URL"}           | ${'<link rel="icon" href="https://cdn.example.com/favicon-hashed.png">'}                                          | ${"https://example.com/posts/1"} | ${"https://cdn.example.com/favicon-hashed.png"}
+    ${"absolute ICO URL"}           | ${'<link rel="icon" href="https://cdn.example.com/favicon.ico">'}                                                 | ${"https://example.com/posts/1"} | ${"https://cdn.example.com/favicon.ico"}
+    ${"icon without an extension"}  | ${'<link rel="shortcut icon" href="https://cdn.example.com/icon">'}                                               | ${"https://example.com/posts/1"} | ${"https://cdn.example.com/icon"}
+    ${"missing icon"}               | ${"<title>Example</title>"}                                                                                       | ${"https://example.com/posts/1"} | ${"https://example.com/favicon.ico"}
+    ${"root-relative icon"}         | ${'<link rel="icon" href="/assets/favicon.png">'}                                                                 | ${"https://example.com/posts/1"} | ${"https://example.com/assets/favicon.png"}
+    ${"path-relative icon"}         | ${'<link rel="icon" href="favicon.png">'}                                                                         | ${"https://example.com/posts/1"} | ${"https://example.com/posts/favicon.png"}
+    ${"document base URL"}          | ${'<base href="/assets/"><link rel="shortcut icon" href="icons/favicon.png">'}                                    | ${"https://example.com/posts/1"} | ${"https://example.com/assets/icons/favicon.png"}
+    ${"preferred icon file format"} | ${'<link rel="icon" href="/favicon.ico"><link rel="icon" href="/favicon.png"><link rel="icon" href="/icon.svg">'} | ${"https://example.com/posts/1"} | ${"https://example.com/icon.svg"}
+  `("resolves $name", ({ html, url, expected }) => {
+    expect(getFaviconUrl(documentFrom(html), url)).toBe(expected);
   });
 });
 
 describe("getCoverUrl", () => {
   test.each<{
     name: string;
+    html: string;
     url: string;
     expected: string | undefined;
   }>`
-    name               | url                                                                             | expected
-    ${"ESLint"}        | ${"https://eslint.org/docs/latest/rules"}                                       | ${"https://eslint.org/og?title=Rules%20Reference&summary=A%20pluggable%20and%20configurable%20linter%20tool%20for%20identifying%20and%20reporting%20on%20patterns%20in%20JavaScript.%20Maintain%20your%20code%20quality%20with%20ease.%0A&is_rule=false&recommended=&fixable=&suggestions="}
-    ${"voicy"}         | ${"https://voicy.jp/channel/1380/459280"}                                       | ${"https://ogp-image.voicy.jp/ogp-image/story/0/1380/459280"}
-    ${"Cargo"}         | ${"https://doc.rust-lang.org/cargo/reference/publishing.html"}                  | ${undefined}
-    ${"GIGAZINE"}      | ${"https://gigazine.net/news/20230322-windows-11-snipping-tool-vulnerability/"} | ${"https://i.gzn.jp/img/2023/03/22/windows-11-snipping-tool-vulnerability/00_m.jpg"}
-    ${"relative path"} | ${"https://lukas.zapletalovi.com/posts/2022/wrapping-multiple-errors/"}         | ${"https://lukas.zapletalovi.com/images/avatar_rh_256.avif"}
-    ${"meta name="}    | ${"https://tempo.formkit.com/"}                                                 | ${"https://tempo.formkit.com/og.png"}
-  `(`getCoverUrl: $name`, async ({ url, expected }) => {
-    const textResponse = await (await fetch(url)).text();
-    expect(getCoverUrl(new JSDOM(textResponse).window.document, url)).toBe(
-      expected
-    );
+    name                             | html                                                                          | url                              | expected
+    ${"absolute property URL"}       | ${'<meta property="og:image" content="https://cdn.example.com/cover.png">'}   | ${"https://example.com/posts/1"} | ${"https://cdn.example.com/cover.png"}
+    ${"root-relative property URL"}  | ${'<meta property="og:image" content="/images/cover.png">'}                   | ${"https://example.com/posts/1"} | ${"https://example.com/images/cover.png"}
+    ${"path-relative property URL"}  | ${'<meta property="og:image" content="images/cover.png">'}                    | ${"https://example.com/posts/1"} | ${"https://example.com/posts/images/cover.png"}
+    ${"metadata declared with name"} | ${'<meta name="og:image" content="https://cdn.example.com/named-cover.png">'} | ${"https://example.com/posts/1"} | ${"https://cdn.example.com/named-cover.png"}
+    ${"legacy ebook cover element"}  | ${'<img id="ebooksImgBlkFront" src="/images/book.jpg">'}                      | ${"https://example.com/books/1"} | ${"https://example.com/images/book.jpg"}
+    ${"missing cover"}               | ${"<title>Example</title>"}                                                   | ${"https://example.com/posts/1"} | ${undefined}
+  `("resolves $name", ({ html, url, expected }) => {
+    expect(getCoverUrl(documentFrom(html), url)).toBe(expected);
   });
 });
 
 describe("getMetaByHttpEquiv", () => {
   test.each<{
-    httpEquiv: string;
-    url: string;
+    name: string;
+    html: string;
     expected: { content: string } | undefined;
   }>`
-    httpEquiv         | url                                                                             | expected
-    ${"content-type"} | ${"https://gigazine.net/news/20230322-windows-11-snipping-tool-vulnerability/"} | ${undefined}
-    ${"content-type"} | ${"https://www.itmedia.co.jp/news/articles/2307/26/news116.html"}               | ${{ content: "text/html;charset=shift_jis" }}
-    ${"content-type"} | ${"https://www.itmedia.co.jp/pcuser/spv/2310/18/news078.html"}                  | ${undefined}
-    ${"content-type"} | ${"https://www.4gamer.net/games/794/G079439/20250227068/"}                      | ${{ content: "text/html; charset=EUC-JP" }}
-  `(`getMetaByHttpEquiv: $httpEquiv`, async ({ httpEquiv, url, expected }) => {
-    const textResponse = await (await fetch(url)).text();
-    expect(
-      getMetaByHttpEquiv(new JSDOM(textResponse).window.document, httpEquiv)
-    ).toEqual(expected);
+    name                        | html                                                                        | expected
+    ${"EUC-JP content type"}    | ${'<meta http-equiv="content-type" content="text/html; charset=EUC-JP">'}   | ${{ content: "text/html; charset=EUC-JP" }}
+    ${"Shift_JIS content type"} | ${'<meta http-equiv="content-type" content="text/html;charset=shift_jis">'} | ${{ content: "text/html;charset=shift_jis" }}
+    ${"different http-equiv"}   | ${'<meta http-equiv="refresh" content="30">'}                               | ${undefined}
+    ${"charset metadata only"}  | ${'<meta charset="UTF-8">'}                                                 | ${undefined}
+  `("returns $name", ({ html, expected }) => {
+    expect(getMetaByHttpEquiv(documentFrom(html), "content-type")).toEqual(
+      expected
+    );
   });
 });
 
 describe("getCharsetFromMeta", () => {
   test.each<{
-    url: string;
+    name: string;
+    html: string;
     expected: string | undefined;
   }>`
-    url                                                                             | expected
-    ${"https://gigazine.net/news/20230322-windows-11-snipping-tool-vulnerability/"} | ${"utf-8"}
-    ${"https://www.itmedia.co.jp/news/articles/2307/26/news116.html"}               | ${undefined}
-    ${"https://www.itmedia.co.jp/pcuser/spv/2310/18/news078.html"}                  | ${"shift_jis"}
-  `(`getCharsetFromMeta`, async ({ url, expected }) => {
-    const textResponse = await (await fetch(url)).text();
-    expect(getCharsetFromMeta(new JSDOM(textResponse).window.document)).toBe(
-      expected
-    );
+    name                   | html                            | expected
+    ${"UTF-8 charset"}     | ${'<meta charset="UTF-8">'}     | ${"UTF-8"}
+    ${"Shift_JIS charset"} | ${'<meta charset="shift_jis">'} | ${"shift_jis"}
+    ${"missing charset"}   | ${"<title>Example</title>"}     | ${undefined}
+  `("returns $name", ({ html, expected }) => {
+    expect(getCharsetFromMeta(documentFrom(html))).toBe(expected);
   });
 });
