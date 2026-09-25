@@ -2,8 +2,6 @@
 
 [![Release workflow](https://github.com/captain-blue210/mobile-memo/actions/workflows/release.yaml/badge.svg)](https://github.com/captain-blue210/mobile-memo/actions/workflows/release.yaml)
 
-![Mobile Memo](https://raw.githubusercontent.com/captain-blue210/mobile-memo/main/image.png)
-
 Mobile Memo は、Obsidian のデイリーノートをモバイル向けのタイムライン UI で扱うプラグインです。メモとタスクをすばやく追加し、日付ごとの内容を軽量に確認できます。
 
 - 選択中の 1 日分だけを読み込むタイムライン
