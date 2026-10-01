@@ -71,6 +71,33 @@ describe("insertTextUnderSection list", () => {
     );
   });
 
+  test("preserves task affix whitespace before delimiter", async () => {
+    const heading = "## ☑️ タスク";
+    const content = `${heading}\n- [ ] a\n---\n`;
+    const { app, write } = createApp(content, [
+      {
+        level: 2,
+        heading: "☑️ タスク",
+        position: { start: { offset: 0 }, end: { offset: heading.length } },
+      },
+    ]);
+    const helper = new AppHelper(app);
+    const file = { path: "test.md" } as any;
+
+    await helper.insertTextUnderSection(
+      file,
+      heading,
+      "\n- [ ] task #todo  \n",
+      listFormat,
+      "---"
+    );
+
+    expect(write).toHaveBeenCalledWith(
+      "test.md",
+      `${heading}\n- [ ] a\n- [ ] task #todo  \n---\n`
+    );
+  });
+
   test("appends a missing section and task to the end", async () => {
     const content = "## H\nbody\n---\n";
     const { app, write } = createApp(content, [
