@@ -114,7 +114,7 @@ export class AppHelper {
       if (postFormat.type === "list") {
         const body = content.slice(sectionStart, sectionEnd);
         const lines = body.split("\n");
-        const lineText = text.trim();
+        const lineText = text.replace(/^\r?\n/, "").replace(/\r?\n$/, "");
         const listIndexes = lines
           .map((l, i) => (l.trim().startsWith("-") ? i : -1))
           .filter((i) => i >= 0);
