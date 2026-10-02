@@ -156,3 +156,61 @@ describe("getTasks", () => {
     ]);
   });
 });
+
+describe("insertTextUnderSection codeblock", () => {
+  const block = "````fw 12:00\nfirst\n\nsecond\n````";
+  test.each(["", "\n", "\n\n", "\n\n\n"])(
+    "keeps one blank line before a block with existing suffix %j",
+    async (suffix) => {
+      const { app, write } = createApp(`## H\n\nprevious${suffix}`, [
+        {
+          level: 2,
+          heading: "H",
+          position: { start: { offset: 0 }, end: { offset: 4 } },
+        },
+      ]);
+      await new AppHelper(app).insertTextUnderSection(
+        { path: "test.md" } as any,
+        "## H",
+        `\n${block}\n`,
+        { type: "codeblock" },
+        ""
+      );
+      expect(write).toHaveBeenCalledWith(
+        "test.md",
+        `## H\n\nprevious\n\n${block}\n`
+      );
+    }
+  );
+  test("keeps one blank line before the section end delimiter", async () => {
+    const { app, write } = createApp("## H\n\n---\n", [
+      {
+        level: 2,
+        heading: "H",
+        position: { start: { offset: 0 }, end: { offset: 4 } },
+      },
+    ]);
+    await new AppHelper(app).insertTextUnderSection(
+      { path: "test.md" } as any,
+      "## H",
+      `\n${block}\n`,
+      { type: "codeblock" },
+      "---"
+    );
+    expect(write).toHaveBeenCalledWith("test.md", `## H\n\n${block}\n\n---\n`);
+  });
+  test("keeps one blank line after a newly created section heading", async () => {
+    const { app, write } = createApp("existing\n", []);
+    await new AppHelper(app).insertTextUnderSection(
+      { path: "test.md" } as any,
+      "## H",
+      `\n${block}\n`,
+      { type: "codeblock" },
+      ""
+    );
+    expect(write).toHaveBeenCalledWith(
+      "test.md",
+      `existing\n\n## H\n\n${block}\n`
+    );
+  });
+});
