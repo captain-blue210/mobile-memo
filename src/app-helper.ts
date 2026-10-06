@@ -136,6 +136,11 @@ export class AppHelper {
           const after = content.slice(sectionEnd);
           return write(`${before}${newBody}${after}`);
         }
+      } else if (postFormat.type === "codeblock") {
+        const before = content.slice(0, sectionEnd).replace(/\n+$/, "");
+        const after = content.slice(sectionEnd);
+        const block = text.replace(/^\n+|\n+$/g, "");
+        return write(`${before}\n\n${block}${after ? "\n\n" : "\n"}${after}`);
       } else {
         const before = content.slice(0, sectionEnd);
         const after = content.slice(sectionEnd);
@@ -153,7 +158,9 @@ export class AppHelper {
         : content.endsWith("\n")
         ? "\n"
         : "\n\n";
-      return write(`${content}${prefix}${headingLine}\n\n${text}`);
+      const postText =
+        postFormat.type === "codeblock" ? text.replace(/^\n+/, "") : text;
+      return write(`${content}${prefix}${headingLine}\n\n${postText}`);
     }
   }
 
